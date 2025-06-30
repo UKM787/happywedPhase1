@@ -1,0 +1,15 @@
+services:
+  # Your existing services...
+  
+  queue-worker:
+    image: php:8.1-cli
+    container_name: queue-worker
+    volumes:
+      - ./:/var/www/html
+    working_dir: /var/www/html
+    command: php artisan queue:work
+    networks:
+      - laravel
+    depends_on:
+      - mysql
+      # Add other dependencies
