@@ -1,17 +1,14 @@
 {
     "private": true,
-"scripts": {
-  "dev": "npm run development",
-  "development": "mix",
-  "watch": "mix watch",
-  "watch-poll": "mix watch -- --watch-options-poll=1000",
-  "hot": "mix watch --hot",
-  "prod": "npm run production",
-  "production": "mix --production",
-  "build": "npm run production"
-},
-
-
+    "scripts": {
+        "dev": "npm run development",
+        "development": "mix",
+        "watch": "mix watch",
+        "watch-poll": "mix watch -- --watch-options-poll=1000",
+        "hot": "mix watch --hot",
+        "prod": "npm run production",
+        "production": "mix --production"
+    },
     "devDependencies": {
         "@fortawesome/fontawesome-free": "^5.15.4",
         "axios": "^0.21.4",
@@ -25,9 +22,9 @@
         "resolve-url-loader": "^5.0.0",
         "sass": "^1.32.11",
         "sass-loader": "^11.0.1",
-        "vue": "^3.5.17",
+        "vue": "^2.7.10",
         "vue-loader": "^15.9.8",
-        "vue-template-compiler": "^2.7.14"
+        "vue-template-compiler": "^2.6.14"
     },
     "dependencies": {
         "@fortawesome/fontawesome-svg-core": "^6.1.1",
@@ -43,7 +40,6 @@
         "@inertiajs/inertia-vue": "^0.8.0",
         "@popperjs/core": "^2.11.0",
         "@splidejs/splide": "^2.4.21",
-        "@vue/compiler-sfc": "^3.5.17",
         "animate.css": "^4.1.1",
         "apexcharts": "^3.33.0",
         "jw-vue-pagination": "^1.0.3",
@@ -53,7 +49,6 @@
         "primevue": "^2.10.1",
         "quagga": "^0.12.1",
         "razorpay": "^0.0.0",
-        "sweetalert2": "^11.17.2",
         "v-calendar": "^2.3.4",
         "v-click-outside": "^3.1.2",
         "vee-validate": "^3.4.14",

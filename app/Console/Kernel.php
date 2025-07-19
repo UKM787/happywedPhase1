@@ -16,6 +16,7 @@ class Kernel extends ConsoleKernel
         // Other commands...
         \App\Console\Commands\SyncCities::class,
         \App\Console\Commands\ClearAllCaches::class,
+        \App\Console\Commands\TestQueueSystem::class,
     ];
 
     /**
@@ -26,10 +27,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        //  $schedule->call(function () {
-        //     dd('abc');
-        // })->everyMinute();
-        // $schedule->command('inspire')->hourly();
+        // Process queue jobs every minute
+        $schedule->command('queue:work --stop-when-empty --timeout=50')
+                 ->everyMinute()
+                 ->withoutOverlapping()
+                 ->runInBackground();
+
+        // Optional: Clean up failed jobs older than 7 days
+        $schedule->command('queue:prune-failed --hours=168')->daily();
     }
 
     /**

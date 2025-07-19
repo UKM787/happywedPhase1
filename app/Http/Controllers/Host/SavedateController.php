@@ -111,19 +111,18 @@ class SavedateController extends Controller {
                 // Create a unique filename (avoid colons in filename for Windows compatibility)
                 $filename = date('Y-m-d_H-i-s') . '-' . $invitation->slug . '-' . time() . '.' . $file->getClientOriginalExtension();
 
-                // Move the file to the public directory
-                $file->move($fullPath, $filename);
-
-                // Store the path with forward slashes
-                $imagePath = $folderPath . '/' . $filename;
-                $data['imageOne'] = str_replace('\\', '/', $imagePath);
+                // Store in Laravel storage instead of public directory
+                $storagePath = $file->storeAs('uploads/' . $folderPath, $filename, 'public');
+                
+                // Store the path for database
+                $data['imageOne'] = $storagePath;
 
                 // Log the upload for debugging
                 \Log::info('Savedate image uploaded', [
                     'path' => $data['imageOne'],
-                    'full_path' => $fullPath . '/' . $filename,
-                    'exists' => file_exists($fullPath . '/' . $filename),
-                    'url' => asset($data['imageOne'])
+                    'storage_path' => storage_path('app/public/' . $storagePath),
+                    'exists' => file_exists(storage_path('app/public/' . $storagePath)),
+                    'url' => asset('storage/' . $storagePath)
                 ]);
             }
 
@@ -277,6 +276,7 @@ class SavedateController extends Controller {
         );
     }
 }
+
 
 
 

@@ -344,7 +344,6 @@ export default {
                 return '/assets/savedate/savedateupload.png';
             }
             
-            // For debugging
             console.log('Original path:', path);
             
             // Normalize path
@@ -368,8 +367,14 @@ export default {
                 return normalizedPath;
             }
             
-            // Return the path directly - no need to add /storage prefix
-            return '/' + normalizedPath;
+            // Handle old paths that start with 'Uploads' - try both public and storage
+            if (normalizedPath.startsWith('Uploads/')) {
+                // First try storage (new way)
+                return '/storage/' + normalizedPath.toLowerCase().replace('uploads/', 'uploads/');
+            }
+            
+            // For new uploads, they should already have the correct path
+            return '/storage/' + normalizedPath;
         },
         // Handle successful response
         handleSuccessResponse(response) {
@@ -435,51 +440,54 @@ export default {
             const url = new URL(originalSrc);
             const pathOnly = url.pathname;
             
-            // Try different paths
+            // Extract just the filename and folder structure
+            const pathParts = pathOnly.split('/').filter(part => part);
             const alternatives = [];
             
-            // 1. Try with storage prefix
-            if (!pathOnly.includes('/storage/')) {
-                const parts = pathOnly.split('/');
-                parts.splice(1, 0, 'storage');
-                alternatives.push(url.origin + parts.join('/'));
-            }
-            
-            // 2. Try without storage prefix
+            // 1. Try direct public access (remove /storage/ prefix)
             if (pathOnly.includes('/storage/')) {
-                alternatives.push(url.origin + pathOnly.replace('/storage/', '/'));
+                alternatives.push(pathOnly.replace('/storage/', '/'));
             }
             
-            // 3. Try with different case for 'uploads'
-            if (pathOnly.toLowerCase().includes('/uploads/')) {
-                const fixedPath = pathOnly.replace(/\/uploads\//i, '/Uploads/');
-                alternatives.push(url.origin + fixedPath);
+            // 2. Try with different storage paths
+            if (pathParts.length > 0) {
+                const relativePath = pathParts.slice(-4).join('/'); // Get last 4 parts
+                alternatives.push(`/storage/uploads/${relativePath}`);
+                alternatives.push(`/uploads/${relativePath}`);
+                alternatives.push(`/storage/app/public/${pathParts.join('/')}`);
+            }
+            
+            // 3. Try with asset path
+            const filename = pathParts[pathParts.length - 1];
+            if (filename) {
+                alternatives.push(`/assets/uploads/${filename}`);
             }
             
             console.log('Trying alternatives:', alternatives);
             
             // Try each alternative
-            let alternativeIndex = 0;
+            this.tryNextAlternative(alternatives, 0, event);
+        },
+        tryNextAlternative(alternatives, index, event) {
+            if (index >= alternatives.length) {
+                console.log('All alternatives failed, using default image');
+                event.target.src = '/assets/savedate/savedateupload.png';
+                return;
+            }
             
-            const tryNextAlternative = () => {
-                if (alternativeIndex >= alternatives.length) {
-                    // If all alternatives fail, use default image
-                    event.target.src = '/assets/savedate/savedateupload.png';
-                    return;
-                }
-                
-                const alternative = alternatives[alternativeIndex++];
-                console.log('Trying alternative:', alternative);
-                
-                const img = new Image();
-                img.onload = () => {
-                    event.target.src = alternative;
-                };
-                img.onerror = tryNextAlternative;
-                img.src = alternative;
+            const alternative = alternatives[index];
+            console.log(`Trying alternative ${index + 1}/${alternatives.length}:`, alternative);
+            
+            const img = new Image();
+            img.onload = () => {
+                console.log('Alternative worked:', alternative);
+                event.target.src = alternative;
             };
-            
-            tryNextAlternative();
+            img.onerror = () => {
+                console.log('Alternative failed:', alternative);
+                this.tryNextAlternative(alternatives, index + 1, event);
+            };
+            img.src = alternative;
         },
         checkStorageAccess() {
             // Try to access a known path in storage
@@ -935,4 +943,7 @@ export default {
     font-family: monospace;
 }
 </style>
+
+
+
 
